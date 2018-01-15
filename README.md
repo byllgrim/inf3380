@@ -6,6 +6,12 @@ pensum
 ======
 introduction to parallel computing 2nd ed
 -----------------------------------------
+introduction: 3 design, 4 communication, 5 modeling.
+
+paradigms: 6 message passing, 7 shared memory.
+
+algorithms: 8 matrices, 9 sorting, 10 graphs.
+
 * ch3 parallel algorithm design
   * 3.1 preliminaries
   * 3.2 decomposition
