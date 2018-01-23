@@ -3,10 +3,13 @@ TARGS = limit 1d_rand
 CFLAGS = -O3 -pedantic -std=c89 -Wall -Wextra
 LDFLAGS = -lm
 
-all: $(TARGS)
+all: bin/$(TARGS)
 
-$(TARGS): $(TARGS:=.c)
-	cc $(CFLAGS) -o $@ $@.c $(LDFLAGS)
+bin/$(TARGS): $(TARGS:=.c) bin
+	cc $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+bin:
+	mkdir -p ./bin/
 
 clean:
 	rm -rf $(TARGS)
