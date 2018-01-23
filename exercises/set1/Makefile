@@ -4,12 +4,12 @@ LDFLAGS = -lm
 
 COMPILE = $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
-all: bin/limit bin/1d_rand
+all: bin bin/limit bin/1d_rand
 
-bin/limit: limit.c bin
+bin/limit: limit.c
 	$(COMPILE)
 
-bin/1d_rand: 1d_rand.c bin
+bin/1d_rand: 1d_rand.c
 	$(COMPILE)
 
 bin:
