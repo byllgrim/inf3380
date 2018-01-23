@@ -1,15 +1,19 @@
-TARGS = limit 1d_rand
-
+CC = gcc
 CFLAGS = -O3 -pedantic -std=c89 -Wall -Wextra
 LDFLAGS = -lm
 
-all: bin/$(TARGS)
+COMPILE = $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
-bin/$(TARGS): $(TARGS:=.c) bin
-	cc $(CFLAGS) -o $@ $< $(LDFLAGS)
+all: bin/limit bin/1d_rand
+
+bin/limit: limit.c bin
+	$(COMPILE)
+
+bin/1d_rand: 1d_rand.c bin
+	$(COMPILE)
 
 bin:
 	mkdir -p ./bin/
 
 clean:
-	rm -rf $(TARGS)
+	rm -rf ./bin/
