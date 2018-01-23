@@ -1,4 +1,4 @@
-TARGS = limit
+TARGS = limit 1d_rand
 
 CFLAGS = -O3 -pedantic -std=c89 -Wall -Wextra
 LDFLAGS = -lm
