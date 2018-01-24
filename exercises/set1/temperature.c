@@ -14,15 +14,12 @@ struct temperature {
 	uint8_t frac; /* fractional part of deg */
 };
 
-void
-readfile(int fd)
+struct temperature
+parsetemp(char *buf, size_t len)
 {
-	char buf[BUFLEN + 1] = {0};
 	struct temperature temp = {0};
 	char *endptr;
 	char *nptr;
-
-	read(fd, buf, BUFLEN);
 
 	nptr = buf;
 	temp.hour = strtol(nptr, &endptr, 10);
@@ -42,6 +39,19 @@ readfile(int fd)
 
 	printf("%02d:%02d %3d.%d\n",
 	       temp.hour, temp.min, temp.deg, temp.frac);
+
+	/* TODO error checking */
+	return temp;
+}
+
+void
+readfile(int fd)
+{
+	char buf[BUFLEN + 1] = {0};
+	struct temperature temp = {0};
+
+	read(fd, buf, BUFLEN);
+	temp = parsetemp(buf, sizeof(buf) - 1);
 
 	/* TODO error checking */
 }
