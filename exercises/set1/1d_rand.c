@@ -11,7 +11,7 @@ struct minmax {
 };
 
 long int
-parselength(int argc, char *args[])
+parselength(int argc, char *argv[])
 {
 	long int n;
 	char *endptr;
@@ -20,7 +20,7 @@ parselength(int argc, char *args[])
 
 	assert(argc == 2);
 
-	nptr = args[1];
+	nptr = argv[1];
 	endptr = nptr;
 
 	errno = 0;
@@ -94,13 +94,13 @@ findminmax(int *arr, long int n)
 }
 
 int
-main(int argc, char *args[])
+main(int argc, char *argv[])
 {
 	long int n;
 	int *arr = 0;
 	struct minmax minmax;
 
-	n = parselength(argc, args); /* TODO parsen? */
+	n = parselength(argc, argv); /* TODO parsen? */
 	arr = createarray(n);
 	fillrand(arr, n);
 
