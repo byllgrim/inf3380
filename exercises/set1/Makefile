@@ -1,4 +1,9 @@
-all: bin bin/limit bin/1d_rand bin/index_order bin/contiguous3d
+all: bin\
+	bin/limit \
+	bin/1d_rand \
+	bin/index_order \
+	bin/contiguous3d \
+	bin/temperature
 
 bin/limit: limit.c
 	$(COMPILE)
@@ -10,6 +15,9 @@ bin/index_order: index_order.c
 	$(COMPILE)
 
 bin/contiguous3d: contiguous3d.c
+	$(COMPILE)
+
+bin/temperature: temperature.c
 	$(COMPILE)
 
 include ../progs.mk
