@@ -16,33 +16,34 @@ struct temperature {
 };
 
 void
-printtemp(struct temperature temp)
+printtemp(struct temperature *temp)
 {
 	printf("%02d:%02d %3d.%d\n",
-	       temp.hour, temp.min, temp.deg, temp.frac);
+	       temp->hour, temp->min, temp->deg, temp->frac);
 }
 
-struct temperature
+struct temperature *
 parsetemp(char *buf, size_t len)
 {
-	struct temperature temp = {0};
+	struct temperature *temp;
 	char *endptr;
 	char *nptr;
 
-	temp.hour = strtol(buf, &endptr, 10);
+	temp = malloc(sizeof(*temp));
+	temp->hour = strtol(buf, &endptr, 10);
 
 	nptr = endptr;
 	while (!isdigit(*nptr)) /* TODO bounds */
 		nptr++;
-	temp.min = strtol(nptr, &endptr, 10);
+	temp->min = strtol(nptr, &endptr, 10);
 
 	nptr = endptr;
 	while (isspace(*nptr)) /* TODO bounds */
 		nptr++;
-	temp.deg = strtol(nptr, &endptr, 10);
+	temp->deg = strtol(nptr, &endptr, 10);
 
 	nptr = endptr + 1;
-	temp.frac = strtol(nptr, &endptr, 10);
+	temp->frac = strtol(nptr, &endptr, 10);
 
 	/* TODO error checking */
 	return temp;
@@ -63,25 +64,26 @@ readmore(int fd, char *src, char *off, size_t siz) /* TODO rename update buf */
 	/* TODO error checking */
 }
 
-void
+struct temperature **
 readfile(int fd)
 {
 	char buf[BUFLEN] = {0};
-	struct temperature temp = {0};
+	struct temperature **temps;
 	ssize_t nb;
 	char *line;
+	size_t i;
 
 	nb = read(fd, buf, sizeof(buf) - 1);
-
+	temps = malloc(128 * sizeof(*temps));
 	line = buf;
-	for (;;) {
+	for (i = 0;;i++) {
 		if (!strchr(line, '\n')) { /* TODO inefficient */
 			readmore(fd, buf, line, sizeof(buf) - 1);
 			line = buf;
 		}
 
-		temp = parsetemp(line, nb);
-		printtemp(temp);
+		temps[i] = parsetemp(line, nb);
+		printtemp(temps[i]);
 
 		line = strchr(line, '\n');
 		if (!line || line[1] == '\0')
@@ -90,12 +92,14 @@ readfile(int fd)
 	}
 
 	/* TODO error checking */
+	return temps;
 }
 
 int
 main(int argc, char *argv[])
 {
 	int fd;
+	struct temperature **temps;
 
 	if (argc != 2) {
 		fprintf(stderr, "usage: %s <filename>\n", argv[0]);
@@ -108,7 +112,7 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	readfile(fd);
+	temps = readfile(fd);
 
 	return 0;
 }
