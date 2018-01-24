@@ -49,9 +49,18 @@ parsetemp(char *buf, size_t len)
 }
 
 void
-readmore(int fd, char *src, char *off, size_t siz) /* TODO rename */
+readmore(int fd, char *src, char *off, size_t siz) /* TODO rename update buf */
 {
-	printf("incomplete line\n"); /* TODO implement function */
+	size_t nparsed;
+
+	nparsed = off - src;
+	memmove(src, off, siz - nparsed); /* TODO copy only valid data */
+	memset(src + siz - nparsed, '\0', nparsed);
+	/* TODO clearer math */
+
+	read(fd, src + siz - nparsed, nparsed);
+
+	/* TODO error checking */
 }
 
 void
@@ -66,15 +75,17 @@ readfile(int fd)
 
 	line = buf;
 	for (;;) {
-		if (!strchr(line, '\n')) /* TODO inefficient */
+		if (!strchr(line, '\n')) { /* TODO inefficient */
 			readmore(fd, buf, line, sizeof(buf) - 1);
+			line = buf;
+		}
 
 		temp = parsetemp(line, nb);
 		printtemp(temp);
 
 		line = strchr(line, '\n');
-		if (!line)
-			printf("no line\n");
+		if (!line || line[1] == '\0')
+			break;
 		line++;
 	}
 
