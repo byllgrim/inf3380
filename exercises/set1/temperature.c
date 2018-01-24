@@ -3,9 +3,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
-enum {BUFLEN = 24}; /* TODO increase */
+enum {BUFLEN = 20}; /* TODO increase */
 
 struct temperature {
 	uint8_t hour; /* hour of day */
@@ -48,14 +49,34 @@ parsetemp(char *buf, size_t len)
 }
 
 void
+readmore(int fd, char *src, char *off, size_t siz) /* TODO rename */
+{
+	printf("incomplete line\n"); /* TODO implement function */
+}
+
+void
 readfile(int fd)
 {
-	char buf[BUFLEN + 1] = {0};
+	char buf[BUFLEN] = {0};
 	struct temperature temp = {0};
+	ssize_t nb;
+	char *line;
 
-	read(fd, buf, BUFLEN);
-	temp = parsetemp(buf, sizeof(buf) - 1);
-	printtemp(temp);
+	nb = read(fd, buf, sizeof(buf) - 1);
+
+	line = buf;
+	for (;;) {
+		if (!strchr(line, '\n')) /* TODO inefficient */
+			readmore(fd, buf, line, sizeof(buf) - 1);
+
+		temp = parsetemp(line, nb);
+		printtemp(temp);
+
+		line = strchr(line, '\n');
+		if (!line)
+			printf("no line\n");
+		line++;
+	}
 
 	/* TODO error checking */
 }
