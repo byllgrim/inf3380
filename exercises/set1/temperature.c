@@ -1,9 +1,17 @@
 #include <fcntl.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 enum {BUFLEN = 4}; /* TODO increase */
+
+struct day {
+	uint8_t hour; /* hour of day */
+	uint8_t min;  /* minute of hour */
+	uint8_t deg;  /* degrees celcius */
+	uint8_t frac; /* fractional part of deg */
+};
 
 int
 main(int argc, char *argv[])
