@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 struct minmax {
 	int min;
@@ -64,10 +65,9 @@ fillrand(int *arr, long int n)
 
 	assert(arr);
 	assert(n);
+	srand(time((void *)0));
 	for (i = 0; i < n; i++)
 		arr[i] = rand() % 100;
-
-	/* TODO seed rand */
 }
 
 struct minmax
