@@ -6,7 +6,7 @@
 
 enum {BUFLEN = 4}; /* TODO increase */
 
-struct day {
+struct temperature {
 	uint8_t hour; /* hour of day */
 	uint8_t min;  /* minute of hour */
 	uint8_t deg;  /* degrees celcius */
