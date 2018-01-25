@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <fcntl.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,6 +149,22 @@ calcmean(struct temperature **temps)
 	return sum / n;
 }
 
+double
+variance(struct temperature **temps, double mean)
+{
+	double sub;
+	double sum;
+	size_t n;
+
+	for (n = sum = 0; *temps; temps++) {
+		sub = gettemperature(*temps) - mean;
+		sum += sub * sub;
+		n++;
+	}
+
+	return sum / n;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -155,6 +172,7 @@ main(int argc, char *argv[])
 	struct temperature **temps;
 	struct temperature **minmax;
 	double mean;
+	double stddev;
 
 	if (argc != 2) {
 		fprintf(stderr, "usage: %s <filename>\n", argv[0]);
@@ -178,6 +196,9 @@ main(int argc, char *argv[])
 
 	mean = calcmean(temps);
 	printf("mean %f\n", mean);
+
+	stddev = sqrt(variance(temps, mean));
+	printf("stddev %f\n", stddev);
 
 	return 0;
 }
