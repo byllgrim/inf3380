@@ -3,7 +3,8 @@ all: bin\
 	bin/1d_rand \
 	bin/index_order \
 	bin/contiguous3d \
-	bin/temperature
+	bin/temperature \
+	bin/ff2grey
 
 bin/limit: limit.c
 	$(COMPILE)
@@ -18,6 +19,9 @@ bin/contiguous3d: contiguous3d.c
 	$(COMPILE)
 
 bin/temperature: temperature.c
+	$(COMPILE)
+
+bin/ff2grey: ff2grey.c
 	$(COMPILE)
 
 include ../progs.mk
