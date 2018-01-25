@@ -31,9 +31,10 @@ parsetemp(char *buf, size_t len)
 
 	temp = malloc(sizeof(*temp));
 	temp->hour = strtol(buf, &endptr, 10);
+	(void)len; /* TODO bounds */
 
 	nptr = endptr;
-	while (!isdigit(*nptr)) /* TODO bounds */
+	while (!isdigit(*nptr))
 		nptr++;
 	temp->min = strtol(nptr, &endptr, 10);
 
@@ -76,7 +77,7 @@ readfile(int fd)
 	nb = read(fd, buf, sizeof(buf) - 1);
 	temps = malloc(128 * sizeof(*temps));
 	line = buf;
-	for (i = 0;;i++) {
+	for (i = 0; i < 128 - 1;i++) { /* TODO oh god its horrible */
 		if (!strchr(line, '\n')) { /* TODO inefficient */
 			readmore(fd, buf, line, sizeof(buf) - 1);
 			line = buf;
@@ -90,9 +91,34 @@ readfile(int fd)
 			break;
 		line++;
 	}
+	temps[++i] = (void *)0;
 
 	/* TODO error checking */
 	return temps;
+}
+
+struct temperature **
+findminmax(struct temperature **temps)
+{
+	struct temperature **minmax;
+	struct temperature *min;
+	struct temperature *max;
+
+	min = *temps;
+	max = *temps;
+	while (*temps) {
+		if (temps[0]->deg < min->deg)
+			min = temps[0];
+		if (temps[0]->deg > max->deg)
+			max = temps[0];
+		temps++;
+	}
+
+	minmax = malloc(2 * sizeof(*minmax)); /* TODO check err */
+	minmax[0] = min;
+	minmax[1] = max;
+
+	return minmax;
 }
 
 int
@@ -100,6 +126,7 @@ main(int argc, char *argv[])
 {
 	int fd;
 	struct temperature **temps;
+	struct temperature **minmax;
 
 	if (argc != 2) {
 		fprintf(stderr, "usage: %s <filename>\n", argv[0]);
@@ -112,7 +139,14 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	printf("temperatures\n");
 	temps = readfile(fd);
+
+	minmax = findminmax(temps);
+	printf("\nmin ");
+	printtemp(minmax[0]);
+	printf("max ");
+	printtemp(minmax[1]);
 
 	return 0;
 }
