@@ -13,6 +13,7 @@ struct temperature {
 	uint8_t min;  /* minute of hour */
 	int8_t deg;   /* degrees celcius */
 	uint8_t frac; /* fractional part of deg */
+		/* ^fixed point, why? */
 };
 
 void
@@ -104,14 +105,11 @@ findminmax(struct temperature **temps)
 	struct temperature *min;
 	struct temperature *max;
 
-	min = *temps;
-	max = *temps;
-	while (*temps) {
+	for (min = max = *temps; *temps; temps++) {
 		if (temps[0]->deg < min->deg)
 			min = temps[0];
 		if (temps[0]->deg > max->deg)
 			max = temps[0];
-		temps++;
 	}
 
 	minmax = malloc(2 * sizeof(*minmax)); /* TODO check err */
@@ -121,12 +119,38 @@ findminmax(struct temperature **temps)
 	return minmax;
 }
 
+double
+calcmean(struct temperature **temps)
+{
+	double sum = 0;
+	size_t n = 0;
+	int8_t deg;
+	double frac;
+
+	for (; *temps; temps++) {
+		/* TODO shit I don't have time for non-shitty algorithms */
+		deg = temps[0]->deg;
+		frac = temps[0]->frac;
+
+		while (frac >= 1)
+			frac *= 0.1;
+		if (deg < 0)
+			frac *= -1;
+
+		sum += deg + frac;
+		n++;
+	}
+
+	return sum / n;
+}
+
 int
 main(int argc, char *argv[])
 {
 	int fd;
 	struct temperature **temps;
 	struct temperature **minmax;
+	double mean;
 
 	if (argc != 2) {
 		fprintf(stderr, "usage: %s <filename>\n", argv[0]);
@@ -147,6 +171,9 @@ main(int argc, char *argv[])
 	printtemp(minmax[0]);
 	printf("max ");
 	printtemp(minmax[1]);
+
+	mean = calcmean(temps);
+	printf("mean %f\n", mean);
 
 	return 0;
 }
