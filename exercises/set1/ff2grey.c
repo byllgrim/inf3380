@@ -42,14 +42,14 @@ greyavg(uint16_t *rgba)
 }
 
 void
-readrow(uint32_t width)
+readmatrix(uint32_t height, uint32_t  width)
 {
 	uint16_t buf[4]; /* RGBA */
 	size_t i;
 	uint16_t pxl;
 	uint16_t alpha = 0xFFFF;
 
-	for (i = 0; i < width; i++) {
+	for (i = 0; i < height * width; i++) {
 		read(STDIN_FILENO, buf, sizeof(buf));
 		pxl = greyavg(buf);
 		swapend16((char *)&pxl);
@@ -57,16 +57,6 @@ readrow(uint32_t width)
 		write(STDOUT_FILENO, &pxl, sizeof(pxl));
 		write(STDOUT_FILENO, &pxl, sizeof(pxl));
 		write(STDOUT_FILENO, &alpha, sizeof(alpha));
-	}
-}
-
-void
-readallrows(uint32_t height, uint32_t  width)
-{
-	size_t i;
-
-	for (i = 0; i < height; i++) {
-		readrow(width);
 	}
 }
 
@@ -88,7 +78,7 @@ main(void)
 	write(STDOUT_FILENO, &height, 4);
 	swapend32((char *)&height);
 
-	readallrows(height, width);
+	readmatrix(height, width);
 
 	return 0;
 }
