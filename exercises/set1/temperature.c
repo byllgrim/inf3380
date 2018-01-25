@@ -120,24 +120,28 @@ findminmax(struct temperature **temps)
 }
 
 double
+gettemperature(struct temperature *temp)
+{
+	int8_t deg = temp->deg;
+	double frac = temp->frac;
+
+	/* TODO holy shit I don't have time for non-shitty algorithms */
+	while (frac >= 1)
+		frac *= 0.1;
+	if (deg < 0)
+		frac *= -1;
+
+	return deg + frac;
+}
+
+double
 calcmean(struct temperature **temps)
 {
 	double sum = 0;
 	size_t n = 0;
-	int8_t deg;
-	double frac;
 
 	for (; *temps; temps++) {
-		/* TODO shit I don't have time for non-shitty algorithms */
-		deg = temps[0]->deg;
-		frac = temps[0]->frac;
-
-		while (frac >= 1)
-			frac *= 0.1;
-		if (deg < 0)
-			frac *= -1;
-
-		sum += deg + frac;
+		sum += gettemperature(*temps);
 		n++;
 	}
 
