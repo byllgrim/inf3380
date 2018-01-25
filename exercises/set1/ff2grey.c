@@ -3,12 +3,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-struct image {
-	uint32_t width;
-	uint32_t height;
-	uint16_t *data; /* row-major greyscale values */
-};
-
 void
 swapend32(char *b)
 {
@@ -48,19 +42,15 @@ greyavg(uint16_t *rgba)
 }
 
 void
-readrow(uint16_t *row, size_t width)
+readrow(uint32_t width)
 {
-	uint16_t *buf;
-	size_t bufsiz;
+	uint16_t buf[4]; /* RGBA */
 	size_t i;
 	uint16_t pxl;
 	uint16_t alpha = 0xFFFF;
 
-	bufsiz = 4 * sizeof(*buf); /* RGBA */
-	buf = malloc(bufsiz);
-
 	for (i = 0; i < width; i++) {
-		read(STDIN_FILENO, buf, bufsiz);
+		read(STDIN_FILENO, buf, sizeof(buf));
 		pxl = greyavg(buf);
 		swapend16((char *)&pxl);
 		write(STDOUT_FILENO, &pxl, sizeof(pxl));
@@ -68,51 +58,37 @@ readrow(uint16_t *row, size_t width)
 		write(STDOUT_FILENO, &pxl, sizeof(pxl));
 		write(STDOUT_FILENO, &alpha, sizeof(alpha));
 	}
-	(void)row; /* TODO assign to array */
 }
 
 void
-readallrows(struct image image)
+readallrows(uint32_t height, uint32_t  width)
 {
 	size_t i;
 
-	for (i = 0; i < image.height; i++) {
-		readrow(&(image.data[i * image.width]), image.width);
+	for (i = 0; i < height; i++) {
+		readrow(width);
 	}
-}
-
-struct image
-readff()
-{
-	struct image image;
-	char magic[8+1];
-	uint32_t width;
-	uint32_t height;
-
-	read(STDIN_FILENO, magic, sizeof(magic) - 1);
-	magic[sizeof(magic) - 1] = '\0';
-	write(STDOUT_FILENO, magic, 8);
-
-	read(STDIN_FILENO, &width, sizeof(width));
-	write(STDOUT_FILENO, &width, 4);
-	swapend32((char *)&width);
-	image.width = width; /* TODO omit redundant variables? */
-
-	read(STDIN_FILENO, &height, sizeof(height));
-	write(STDOUT_FILENO, &height, 4);
-	swapend32((char *)&height);
-	image.height = height; /* TODO omit redundant variables? */
-
-	image.data = malloc(width * height * sizeof(*(image.data)));
-	readallrows(image);
-
-	return image;
 }
 
 int
 main(void)
 {
-	readff(); /* TODO why refactor? */
+	char magic[8];
+	uint32_t width;
+	uint32_t height;
+
+	read(STDIN_FILENO, magic, sizeof(magic));
+	write(STDOUT_FILENO, magic, sizeof(magic));
+
+	read(STDIN_FILENO, &width, sizeof(width));
+	write(STDOUT_FILENO, &width, 4);
+	swapend32((char *)&width);
+
+	read(STDIN_FILENO, &height, sizeof(height));
+	write(STDOUT_FILENO, &height, 4);
+	swapend32((char *)&height);
+
+	readallrows(height, width);
 
 	return 0;
 }
