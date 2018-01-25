@@ -5,7 +5,14 @@
 void
 swapend32(char *b)
 {
-	(void)b;
+	uint32_t n;
+
+	n = *(uint32_t *)b;
+
+	b[0] = ((char *)&n)[3];
+	b[1] = ((char *)&n)[2];
+	b[2] = ((char *)&n)[1];
+	b[3] = ((char *)&n)[0];
 }
 
 int
@@ -19,9 +26,11 @@ main(void)
 	printf("magic = '%s'\n", magic);
 
 	read(STDIN_FILENO, &width, sizeof(width));
+	swapend32((char *)&width);
 	printf("width = %d\n", width);
 
 	read(STDIN_FILENO, &height, sizeof(height));
+	swapend32((char *)&height);
 	printf("height = %d\n", height);
 
 	return 0;
