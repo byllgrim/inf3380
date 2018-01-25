@@ -43,8 +43,6 @@ greyavg(uint16_t *rgba)
 	swapend16((char *)&rgba[2]);
 
 	sum += 2*rgba[0] + 3*rgba[1] + 1*rgba[2];
-	fprintf(stderr, "%x %x %x\n", rgba[0], rgba[1], rgba[2]);
-	fprintf(stderr, "%x\n", sum/6);
 
 	return sum / 6;
 }
