@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 void swap(int *a, int *b)
 {
 	int t=*a; *a=*b; *b=t;
@@ -22,5 +24,13 @@ void sort(int arr[], int beg, int end)
 int
 main(void)
 {
+	size_t i;
+	int arr[] = {5, 2, 3, 1, 4, 6};
+
+	sort(arr, 0, 5);
+
+	for (i = 0; i < 6; i++)
+		printf("[%02d] %02d\n", i, arr[i]);
+
 	return 0;
 }
