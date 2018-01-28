@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 void
-readmagic(void)
+readffmagic(void)
 {
 	char magic[8];
 
@@ -18,28 +18,36 @@ readmagic(void)
 }
 
 uint32_t
-readwidth(void)
+endian32(uint32_t value)
 {
-	uint32_t width;
+	uint32_t flipped = 0;
 
-	read(STDIN_FILENO, &width, sizeof(width));
+	flipped |= (value & 0x000000FF) << 24;
+	flipped |= (value & 0x0000FF00) << 8;
+	flipped |= (value & 0x00FF0000) >> 8;
+	flipped |= (value & 0xFF000000) >> 24;
 
-	return width;
+	return flipped;
 }
 
 void
-readimage(void)
+readsize(uint32_t *width, uint32_t *height)
 {
-	uint32_t width;
+	read(STDIN_FILENO, width, sizeof(*width));
+	*width = endian32(*width);
 
-	readmagic();
-	width = readwidth();
+	read(STDIN_FILENO, height, sizeof(*height));
+	*height = endian32(*height);
 }
 
 int
 main(void)
 {
-	readimage();
+	uint32_t width;
+	uint32_t height;
+
+	readffmagic();
+	readsize(&width, &height);
 
 	return EXIT_SUCCESS;
 }
