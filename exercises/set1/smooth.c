@@ -82,6 +82,36 @@ readpxls(uint32_t width, uint32_t height)
 	return pxls2d;
 }
 
+void
+printff(uint32_t width, uint32_t height, uint16_t **pxls)
+{
+	uint16_t pxl;
+	size_t i;
+	size_t j;
+	uint16_t alpha = 0xFFFF;
+
+	write(STDOUT_FILENO, "farbfeld", 8);
+
+	width = endian32(width);
+	write(STDOUT_FILENO, &width, sizeof(width));
+	width = endian32(width);
+
+	height = endian32(height);
+	write(STDOUT_FILENO, &height, sizeof(height));
+	height = endian32(height);
+
+	for (i = 0; i < height; i++) {
+		for (j = 0; j < width; j++) {
+			pxl = pxls[i][j];
+			pxl = endian16(pxl);
+			write(STDOUT_FILENO, &pxl, sizeof(pxl));
+			write(STDOUT_FILENO, &pxl, sizeof(pxl));
+			write(STDOUT_FILENO, &pxl, sizeof(pxl));
+			write(STDOUT_FILENO, &alpha, sizeof(alpha));
+		}
+	}
+}
+
 int
 main(void)
 {
@@ -92,6 +122,8 @@ main(void)
 	readffmagic();
 	readsize(&width, &height);
 	pxls = readpxls(width, height);
+
+	printff(width, height, pxls);
 
 	return EXIT_SUCCESS;
 }
