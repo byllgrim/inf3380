@@ -4,7 +4,8 @@ all: bin\
 	bin/index_order \
 	bin/contiguous3d \
 	bin/temperature \
-	bin/ff2grey
+	bin/ff2grey \
+	bin/smooth
 
 bin/limit: limit.c
 	$(COMPILE)
@@ -22,6 +23,9 @@ bin/temperature: temperature.c
 	$(COMPILE)
 
 bin/ff2grey: ff2grey.c
+	$(COMPILE)
+
+bin/smooth: smooth.c
 	$(COMPILE)
 
 include ../progs.mk
