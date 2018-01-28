@@ -5,7 +5,8 @@ all: bin\
 	bin/contiguous3d \
 	bin/temperature \
 	bin/ff2grey \
-	bin/smooth
+	bin/smooth \
+	bin/permutation
 
 bin/limit: limit.c
 	$(COMPILE)
@@ -26,6 +27,9 @@ bin/ff2grey: ff2grey.c
 	$(COMPILE)
 
 bin/smooth: smooth.c
+	$(COMPILE)
+
+bin/permutation: permutation.c
 	$(COMPILE)
 
 include ../progs.mk
