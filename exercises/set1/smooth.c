@@ -173,7 +173,7 @@ smooth(uint32_t width, uint32_t height, uint16_t **pxls)
 	uint16_t up;
 	uint16_t down;
 	int32_t new;
-	double c = 0.5;
+	double c = 0.16;
 
 	tmp1d = ecalloc(width * height, sizeof(*tmp1d));
 	memcpy(tmp1d, *pxls, width * height * sizeof(*tmp1d));
