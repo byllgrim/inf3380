@@ -4,12 +4,31 @@
 #include <string.h>
 #include <unistd.h>
 
+void *
+ecalloc(size_t nmemb, size_t size)
+{
+	void *mem;
+
+	mem = calloc(nmemb, size);
+	if (!mem) {
+		fprintf(stderr, "alloc failed\n");
+	}
+
+	return mem;
+}
+
 void
 readffmagic(void)
 {
 	char magic[8];
+	size_t nb;
 
-	read(STDIN_FILENO, magic, sizeof(magic));
+	nb = read(STDIN_FILENO, magic, sizeof(magic));
+
+	if (nb != sizeof(magic)) {
+		fprintf(stderr, "failed to read magic\n");
+		exit(EXIT_FAILURE);
+	}
 
 	if (memcmp(magic, "farbfeld", sizeof(magic))) {
 		fprintf(stderr, "bad magic\n");
@@ -44,10 +63,20 @@ endian16(uint16_t value)
 void
 readsize(uint32_t *width, uint32_t *height)
 {
-	read(STDIN_FILENO, width, sizeof(*width));
+	size_t nb;
+
+	nb = read(STDIN_FILENO, width, sizeof(*width));
+	if (nb != sizeof(*width)) {
+		fprintf(stderr, "failed to read width\n");
+		exit(EXIT_FAILURE);
+	}
 	*width = endian32(*width);
 
 	read(STDIN_FILENO, height, sizeof(*height));
+	if (nb != sizeof(*height)) {
+		fprintf(stderr, "failed to read height\n");
+		exit(EXIT_FAILURE);
+	}
 	*height = endian32(*height);
 }
 
@@ -61,17 +90,23 @@ readpxls(uint32_t width, uint32_t height)
 	uint16_t *buf;
 	size_t j;
 	uint16_t pxl;
+	size_t nb;
 
-	pxls1d = malloc(width * height * sizeof(*pxls1d));
-	pxls2d = malloc(height * sizeof(*pxls2d));
+	pxls1d = ecalloc(width * height, sizeof(*pxls1d));
+	pxls2d = ecalloc(height, sizeof(*pxls2d));
 	for (i = 0; i < height; i++)
 		pxls2d[i] = &pxls1d[i *width];
 
 	rowsiz = width * 4 * sizeof(uint16_t);
-	buf = malloc(rowsiz);
+	buf = ecalloc(rowsiz, 1);
 
 	for (i = 0; i < height; i++) {
-		read(STDIN_FILENO, buf, rowsiz);
+		nb = read(STDIN_FILENO, buf, rowsiz);
+		if (nb != rowsiz) {
+			fprintf(stderr, "reading row %d failed\n", i);
+			exit(EXIT_FAILURE);
+		}
+
 		for (j = 0; j < width; j++) {
 			pxl = buf[4 * j];
 			pxl = endian16(pxl);
@@ -89,15 +124,28 @@ printff(uint32_t width, uint32_t height, uint16_t **pxls)
 	size_t i;
 	size_t j;
 	uint16_t alpha = 0xFFFF;
+	ssize_t nb;
 
-	write(STDOUT_FILENO, "farbfeld", 8);
+	nb = write(STDOUT_FILENO, "farbfeld", 8);
+	if (nb != 8) {
+		fprintf(stderr, "failed to write magic\n");
+		exit(EXIT_FAILURE);
+	}
 
 	width = endian32(width);
-	write(STDOUT_FILENO, &width, sizeof(width));
+	nb = write(STDOUT_FILENO, &width, sizeof(width));
+	if (nb != sizeof(width)) {
+		fprintf(stderr, "failed to write width\n");
+		exit(EXIT_FAILURE);
+	}
 	width = endian32(width);
 
 	height = endian32(height);
-	write(STDOUT_FILENO, &height, sizeof(height));
+	nb = write(STDOUT_FILENO, &height, sizeof(height));
+	if (nb != sizeof(height)) {
+		fprintf(stderr, "failed to write height\n");
+		exit(EXIT_FAILURE);
+	}
 	height = endian32(height);
 
 	for (i = 0; i < height; i++) {
