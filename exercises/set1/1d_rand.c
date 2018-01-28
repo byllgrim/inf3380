@@ -61,7 +61,6 @@ void
 fillrand(int *arr, long int n)
 {
 	long int i;
-	int tmp;
 
 	assert(arr);
 	assert(n);
@@ -84,8 +83,8 @@ findminmax(int *arr, long int n)
 	min = arr[0];
 	max = arr[0];
 	for (i = 0; i < n; i++) {
-		arr[i] < min ? min = arr[i] : (void)0;
-		arr[i] > max ? max = arr[i] : (void)0;
+		min = arr[i] < min ? arr[i] : min;
+		max = arr[i] > max ? arr[i] : max;
 	}
 
 	minmax.min = min;
