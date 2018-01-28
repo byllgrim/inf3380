@@ -101,8 +101,8 @@ readpxls(uint32_t width, uint32_t height)
 	buf = ecalloc(rowsiz, 1);
 
 	for (i = 0; i < height; i++) {
-		nb = read(STDIN_FILENO, buf, rowsiz);
-		if (nb != rowsiz) {
+		nb = fread(buf, 1, rowsiz, stdin);
+		if (nb < rowsiz) {
 			fprintf(stderr, "reading row %d failed\n", i);
 			exit(EXIT_FAILURE);
 		}
@@ -160,6 +160,46 @@ printff(uint32_t width, uint32_t height, uint16_t **pxls)
 	}
 }
 
+void
+smooth(uint32_t width, uint32_t height, uint16_t **pxls)
+{
+	size_t i;
+	size_t j;
+	uint16_t *tmp1d;
+	uint16_t **tmp2d;
+	uint16_t now;
+	uint16_t left;
+	uint16_t right;
+	uint16_t up;
+	uint16_t down;
+	int32_t new;
+	double c = 0.5;
+
+	tmp1d = ecalloc(width * height, sizeof(*tmp1d));
+	memcpy(tmp1d, *pxls, width * height * sizeof(*tmp1d));
+
+	tmp2d = ecalloc(height, sizeof(*tmp2d));
+	for (i = 0; i < height; i++)
+		tmp2d[i] = &tmp1d[i * width];
+
+	for (i = 1; i < height - 1; i++) {
+		for (j = 1; j < width - 1; j++) {
+			now = tmp2d[i][j];
+			left = tmp2d[i][j - 1];
+			right = tmp2d[i][j + 1];
+			up = tmp2d[i - 1][j];
+			down = tmp2d[i + 1][j];
+			new = now + c * (up + left - 4 * now + right + down);
+			new = new > 0xFFFF ? 0xFFFF : new;
+			new = new < 0 ? 0 : new;
+			pxls[i][j] = new;
+		}
+	}
+
+	free(tmp1d);
+	free(tmp2d);
+}
+
 int
 main(void)
 {
@@ -171,6 +211,7 @@ main(void)
 	readsize(&width, &height);
 	pxls = readpxls(width, height);
 
+	smooth(width, height, pxls);
 	printff(width, height, pxls);
 
 	return EXIT_SUCCESS;
