@@ -5,21 +5,21 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-enum {DATASIZ = 1024};
+enum {DATALEN = 1024};
 
 uint16_t *
-generatedata(size_t siz)
+generatedata(size_t len)
 {
 	size_t i;
 	uint16_t *buf;
 
-	buf = malloc(siz);
+	buf = malloc(len * sizeof(*buf));
 	if (!buf) {
 		fprintf(stderr, "generatedata: malloc failed\n");
 		exit(EXIT_FAILURE);
 	}
 
-	for (i = 0; i < siz; i++) {
+	for (i = 0; i < len; i++) {
 		buf[i] = i;
 	}
 
@@ -27,9 +27,10 @@ generatedata(size_t siz)
 }
 
 void
-writebinary(uint16_t* buf, size_t siz)
+writebinary(uint16_t* buf, size_t len)
 {
 	int fd;
+	size_t nb;
 
 	fd = open("binary.dat", O_WRONLY | O_CREAT | O_TRUNC, 00600);
 	if (fd == -1) {
@@ -37,7 +38,12 @@ writebinary(uint16_t* buf, size_t siz)
 		exit(EXIT_FAILURE);
 	}
 
-	/* TODO write data */
+	/* TODO write several times */
+	nb = write(fd, buf, len * sizeof(*buf));
+	if (nb != len * sizeof(*buf)) {
+		fprintf(stderr, "writebinary: write failed %d %d\n", nb, len);
+		exit(EXIT_FAILURE);
+	}
 
 	close(fd);
 }
@@ -45,11 +51,12 @@ writebinary(uint16_t* buf, size_t siz)
 int
 main(void)
 {
-	uint16_t *data;
+	uint16_t *data = (void *)0;
 
-	data = generatedata(DATASIZ);
-	writebinary(data, DATASIZ);
+	data = generatedata(DATALEN);
+	writebinary(data, DATALEN);
 
-	free(data);
+	if (data)
+		free(data);
 	return 0;
 }
