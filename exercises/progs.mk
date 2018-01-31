@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O3 -pedantic -std=c89 -Wall -Wextra
+CFLAGS = -O3 -g -pedantic -std=c89 -Wall -Wextra
 LDFLAGS = -lm
 
 COMPILE = $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)

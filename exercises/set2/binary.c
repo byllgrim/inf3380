@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-enum {DATALEN = 1024};
+enum {DATALEN = 2048};
 
 uint16_t *
 generatedata(size_t len)
@@ -123,12 +123,15 @@ main(void)
 	uint16_t *data = (void *)0;
 	char *binname = "binary.dat";
 	char *asciiname = "ascii.dat";
+	size_t i;
 
 	data = generatedata(DATALEN);
-	writebinary(data, DATALEN, binname);
-	writeascii(data, DATALEN, asciiname);
-	readbinary(binname);
-	readascii(asciiname);
+	for (i = 0; i < 1000; i++) {
+		writebinary(data, DATALEN, binname);
+		writeascii(data, DATALEN, asciiname);
+		readbinary(binname);
+		readascii(asciiname);
+	}
 
 	if (data)
 		free(data);
