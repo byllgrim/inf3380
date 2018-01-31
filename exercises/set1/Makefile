@@ -1,4 +1,4 @@
-all: bin\
+all: bin \
 	bin/limit \
 	bin/1d_rand \
 	bin/index_order \
