@@ -48,6 +48,24 @@ writebinary(uint16_t* buf, size_t len)
 	close(fd);
 }
 
+void
+writeascii(uint16_t* buf, size_t len)
+{
+	FILE *file;
+	size_t i;
+
+	file = fopen("ascii.dat", "w");
+	if (!file) {
+		fprintf(stderr, "writeascii: failed to open file\n");
+		exit(EXIT_FAILURE);
+	}
+
+	for (i = 0; i < len; i++)
+		fprintf(file, "%05d", buf[i]);
+
+	fclose(file);
+}
+
 int
 main(void)
 {
@@ -55,6 +73,7 @@ main(void)
 
 	data = generatedata(DATALEN);
 	writebinary(data, DATALEN);
+	writeascii(data, DATALEN);
 
 	if (data)
 		free(data);
