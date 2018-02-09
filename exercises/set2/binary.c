@@ -41,7 +41,7 @@ writebinary(uint16_t* buf, size_t len, char *filename)
 	/* TODO write several times */
 	nb = write(fd, buf, len * sizeof(*buf));
 	if (nb != len * sizeof(*buf)) {
-		fprintf(stderr, "writebinary: write failed %d %d\n", nb, len);
+		fprintf(stderr, "writebinary: write failed %lu %lu\n", nb, len);
 		exit(EXIT_FAILURE);
 	}
 
